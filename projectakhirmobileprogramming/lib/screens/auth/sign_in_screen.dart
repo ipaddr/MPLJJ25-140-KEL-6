@@ -2,11 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
-  SignInScreen({super.key});
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signIn(AuthProvider authProvider) async {
+    setState(() => isLoading = true);
+    try {
+      await authProvider.signIn(
+        emailController.text,
+        passwordController.text,
+      );
+      if (authProvider.isAuthenticated) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +49,7 @@ class SignInScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
               controller: emailController,
@@ -29,18 +62,12 @@ class SignInScreen extends StatelessWidget {
               obscureText: true,
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                authProvider.signIn(
-                  emailController.text,
-                  passwordController.text,
-                );
-                if (authProvider.isAuthenticated) {
-                  Navigator.pushReplacementNamed(context, '/home');
-                }
-              },
-              child: const Text('Sign In'),
-            ),
+            isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: () => _signIn(authProvider),
+                    child: const Text('Sign In'),
+                  ),
           ],
         ),
       ),

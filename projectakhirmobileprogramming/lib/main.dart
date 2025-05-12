@@ -9,8 +9,10 @@ import 'screens/home/home_screen.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -21,15 +23,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final initialRoute = authProvider.isAuthenticated ? '/home' : '/sign-in';
+
     return MaterialApp(
       title: 'Flutter App',
       theme: appTheme,
-      initialRoute: '/sign-in',
+      initialRoute: initialRoute,
       routes: {
         '/sign-in': (context) => SignInScreen(),
         '/sign-up': (context) => SignUpScreen(),
         '/home': (context) => const HomeScreen(),
       },
+      onUnknownRoute: (settings) => MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: const Text('Page Not Found')),
+          body: const Center(
+            child: Text('Page not found!'),
+          ),
+        ),
+      ),
     );
   }
 }
