@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "229707096553",
+    "project_id": "project-akhir-ae382",
+    "storage_bucket": "project-akhir-ae382.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229707096553:android:f32b7b4a61561a8d75eb78",
+        "android_client_info": {
+          "package_name": "com.example.project_akhir"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0porSthL_ilH_IX2NQe5dd2cySCs45oo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
