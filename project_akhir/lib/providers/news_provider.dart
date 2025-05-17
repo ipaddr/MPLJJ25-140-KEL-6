@@ -21,11 +21,11 @@ class NewsProvider extends ChangeNotifier {
       final apiKey = dotenv.env['MEDIASTACK_API_KEY'];
       
       if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('MediaStack API key not found');
+        throw Exception('MediaStack API key tidak ditemukan');
       }
 
       final url = Uri.parse(
-        'http://api.mediastack.com/v1/news?access_key=$apiKey&categories=general&languages=id&keywords=perumahan,rumah,bantuan,subsidi&limit=10'
+        'https://api.mediastack.com/v1/news?access_key=$apiKey&categories=general&languages=id&keywords=perumahan,rumah,bantuan,subsidi&limit=10'
       );
 
       final response = await http.get(url);
@@ -40,18 +40,52 @@ class NewsProvider extends ChangeNotifier {
               .map((item) => NewsModel.fromMap(item))
               .toList();
           
-          // Sort by date (newest first)
+          // Urutkan berdasarkan tanggal terbaru
           _news.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
         }
+
+        // Jika kosong, pakai fallback dummy
+        if (_news.isEmpty) {
+          _addDummyNews();
+        }
       } else {
-        throw Exception('Failed to load news: ${response.statusCode}');
+        throw Exception('Gagal memuat berita: ${response.statusCode}');
       }
     } catch (e) {
       _setError(e.toString());
+      _addDummyNews();
     } finally {
       _setLoading(false);
     }
   }
+void _addDummyNews() {
+  _news = [
+    NewsModel(
+      title: 'Kenali Syarat Rumah Bersanitasi Berikut!',
+      description:
+          'Simak berbagai hal yang perlu diperhatikan agar rumah memenuhi standar sanitasi...',
+      image: 'assets/images/house_background.png',
+      imageUrl: 'https://via.placeholder.com/300x200.png?text=Rumah+Sehat',
+      publishedAt: DateTime.now(),
+      source: 'Berita Lokal',
+      url: '',
+    ),
+    NewsModel(
+      title: 'Program Rumah Sehat Nasional Diperluas!',
+      description:
+          'Pemerintah menargetkan perluasan program rumah sehat hingga ke pelosok...',
+      image: 'assets/images/house_background.png',
+      imageUrl: 'https://via.placeholder.com/300x200.png?text=Program+Rumah',
+      publishedAt: DateTime.now().subtract(Duration(days: 1)),
+      source: 'Berita Lokal',
+      url: '',
+    ),
+  ];
+
+  notifyListeners();
+}
+
+
 
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -66,5 +100,5 @@ class NewsProvider extends ChangeNotifier {
   void _clearError() {
     _errorMessage = null;
     notifyListeners();
-  }
+    }
 }

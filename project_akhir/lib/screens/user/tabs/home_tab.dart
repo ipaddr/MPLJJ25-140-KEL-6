@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'package:project_akhir/models/house_model.dart';
 import 'package:project_akhir/providers/news_provider.dart';
 import 'package:project_akhir/screens/user/house_detail_screen.dart';
@@ -26,31 +28,18 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     try {
-      // Initialize sample house data (only for development)
       await _houseService.initializeHouseData();
-      
-      // Load houses
       _houses = await _houseService.getHouseReferences();
-      
-      // Load news
       await Provider.of<NewsProvider>(context, listen: false).fetchNews();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -58,285 +47,205 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context);
-    
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
+      backgroundColor: Colors.white,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header image
-                  Stack(
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg',
-                        height: 200,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          height: 200,
-                          color: Colors.grey[300],
-                          child: const Center(child: CircularProgressIndicator()),
+                  // Header Image
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                    child: Stack(
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg',
+                          height: 220,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
                         ),
-                        errorWidget: (context, url, error) => Container(
-                          height: 200,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.error),
+                        Container(
+                          height: 220,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.6),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                      Container(
-                        height: 200,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.7),
+                        Positioned(
+                          bottom: 30,
+                          left: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'rumah.ku',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'wujudkan rumah bersanitasi baik!',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                      Positioned(
-                        bottom: 20,
-                        left: 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'rumah.ku',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                shadows: [
-                                  Shadow(
-                                    blurRadius: 10.0,
-                                    color: Colors.black.withOpacity(0.5),
-                                    offset: const Offset(2, 2),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              'Solusi rumah bersanitasi untuk semua',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+
                   const SizedBox(height: 20),
-                  
-                  // House references section
+
+                  // Section: Referensi Rumah
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Temukan Referensi Rumah Bersanitasi Baik!',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    child: Text(
+                      'Temukan Referensi Rumah Bersanitasi Baik!',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 160,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _houses.length > 4 ? 4 : _houses.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (context, index) {
+                        final house = _houses[index];
+                        return GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => HouseDetailScreen(houseId: house.id),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 0.8,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: house.photoUrls.first,
+                                  width: 160,
+                                  height: 160,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    color: Colors.black54,
+                                    child: Text(
+                                      'Tipe ${house.type}',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          itemCount: _houses.length,
-                          itemBuilder: (context, index) {
-                            final house = _houses[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Section: Berita
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Berita Perumahan terbaru menanti!',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 160,
+                    child: newsProvider.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: newsProvider.news.length > 4 ? 4 : newsProvider.news.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final news = newsProvider.news[index];
+                              return GestureDetector(
+                                onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => HouseDetailScreen(houseId: house.id),
+                                    builder: (_) => NewsDetailScreen(news: news),
                                   ),
-                                );
-                              },
-                              child: Card(
-                                clipBehavior: Clip.antiAlias,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                elevation: 3,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height: 120,
-                                      width: double.infinity,
-                                      child: CachedNetworkImage(
-                                        imageUrl: house.photoUrls.first,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Stack(
+                                    alignment: Alignment.bottomCenter,
+                                    children: [
+                                      CachedNetworkImage(
+                                        imageUrl: news.imageUrl,
+                                        width: 200,
+                                        height: 160,
                                         fit: BoxFit.cover,
-                                        placeholder: (context, url) => Container(
-                                          color: Colors.grey[300],
-                                          child: const Center(child: CircularProgressIndicator()),
-                                        ),
-                                        errorWidget: (context, url, error) => Container(
-                                          color: Colors.grey[300],
-                                          child: const Icon(Icons.error),
+                                      ),
+                                      Container(
+                                        width: 200,
+                                        padding: const EdgeInsets.all(8),
+                                        color: Colors.black45,
+                                        child: Text(
+                                          news.title,
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            house.type,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            '${house.buildingArea} / ${house.landArea}',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[700],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // News section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Berita Perumahan Terkini Mantap!',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        newsProvider.isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : newsProvider.news.isEmpty
-                                ? const Center(
-                                    child: Text('Tidak ada berita tersedia'),
-                                  )
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: newsProvider.news.length > 4 ? 4 : newsProvider.news.length,
-                                    itemBuilder: (context, index) {
-                                      final news = newsProvider.news[index];
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => NewsDetailScreen(news: news),
-                                            ),
-                                          );
-                                        },
-                                        child: Card(
-                                          margin: const EdgeInsets.only(bottom: 10),
-                                          clipBehavior: Clip.antiAlias,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          elevation: 2,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 100,
-                                                height: 100,
-                                                child: CachedNetworkImage(
-                                                  imageUrl: news.imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (context, url) => Container(
-                                                    color: Colors.grey[300],
-                                                    child: const Center(child: CircularProgressIndicator()),
-                                                  ),
-                                                  errorWidget: (context, url, error) => Container(
-                                                    color: Colors.grey[300],
-                                                    child: const Icon(Icons.error),
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(10),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        news.title,
-                                                        style: const TextStyle(
-                                                          fontWeight: FontWeight.bold,
-                                                          fontSize: 14,
-                                                        ),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                      const SizedBox(height: 5),
-                                                      Text(
-                                                        news.source,
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: Colors.grey[700],
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 5),
-                                                      Text(
-                                                        news.description,
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                        ),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    ],
                                   ),
-                      ],
-                    ),
+                                ),
+                              );
+                            },
+                          ),
                   ),
-                  
-                  const SizedBox(height: 30),
+
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

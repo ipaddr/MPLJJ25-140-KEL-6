@@ -10,7 +10,7 @@ class ChatService {
   late final GenerativeModel _model;
 
   ChatService() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    final apiKey = "AIzaSyBGpKuFgDRnjg2-CpRPGojxXWZHek342kU";
     if (apiKey != null && apiKey.isNotEmpty) {
       _model = GenerativeModel(
         model: 'gemini-pro', // Menggunakan model text-only

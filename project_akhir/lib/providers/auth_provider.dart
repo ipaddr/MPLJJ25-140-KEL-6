@@ -30,42 +30,54 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     _setLoading(true);
+
     _auth.authStateChanges().listen((User? user) async {
       _firebaseUser = user;
+
       if (user != null) {
-        await _fetchUserData();
+        try {
+          await _fetchUserData();
+        } catch (e) {
+          // Tangani error agar tidak stuck loading
+          _userModel = null;
+          _adminModel = null;
+          _setError('Failed to fetch user data.');
+        }
       } else {
         _userModel = null;
         _adminModel = null;
       }
+
       _setLoading(false);
       notifyListeners();
     });
   }
 
   Future<void> _fetchUserData() async {
-    try {
-      final docSnapshot = await _firestore
-          .collection('users')
-          .doc(_firebaseUser!.uid)
-          .get();
-      
-      if (!docSnapshot.exists) {
-        _userModel = null;
-        _adminModel = null;
-        return;
-      }
+    if (_firebaseUser == null) return;
 
-      final userData = docSnapshot.data()!;
-      if (userData['isAdmin'] == true) {
-        _adminModel = AdminModel.fromMap(userData);
-        _userModel = null;
-      } else {
-        _userModel = UserModel.fromMap(userData);
-        _adminModel = null;
-      }
-    } catch (e) {
-      _setError("Failed to fetch user data: ${e.toString()}");
+    final docSnapshot = await _firestore
+        .collection('users')
+        .doc(_firebaseUser!.uid)
+        .get();
+
+    if (!docSnapshot.exists) {
+      _userModel = null;
+      _adminModel = null;
+      return;
+    }
+
+    final userData = docSnapshot.data()!;
+
+    // Pastikan isAdmin bisa ada dan adalah bool, jika tidak default false
+    final isAdmin = userData['isAdmin'] == true;
+
+    if (isAdmin) {
+      _adminModel = AdminModel.fromMap(userData);
+      _userModel = null;
+    } else {
+      _userModel = UserModel.fromMap(userData);
+      _adminModel = null;
     }
   }
 
@@ -83,7 +95,6 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      // Create user in Firebase Auth
       final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -92,7 +103,6 @@ class AuthProvider extends ChangeNotifier {
       String? profileImageUrl;
       String? ktpImageUrl;
 
-      // Upload images if provided
       if (profileImage != null) {
         profileImageUrl = await _uploadFile(
           profileImage,
@@ -107,7 +117,6 @@ class AuthProvider extends ChangeNotifier {
         );
       }
 
-      // Create user model
       final user = UserModel(
         uid: userCredential.user!.uid,
         name: name,
@@ -118,16 +127,15 @@ class AuthProvider extends ChangeNotifier {
         additionalInfo: {
           'username': username,
           'ktpImageUrl': ktpImageUrl,
+          'isAdmin': false,  // Penting: tambahkan flag ini supaya jelas bukan admin
         },
       );
 
-      // Save user data to Firestore
       await _firestore
           .collection('users')
           .doc(userCredential.user!.uid)
           .set(user.toMap());
 
-      // Fetch user data to update local state
       await _fetchUserData();
       _setLoading(false);
       return true;
@@ -157,33 +165,30 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      // Create user in Firebase Auth
       final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Create admin model
       final admin = AdminModel(
         uid: userCredential.user!.uid,
         name: name,
         email: email,
         phoneNumber: phoneNumber,
-        nik: nip, // Using NIP as NIK for admin
+        nik: nip, // menggunakan nip sebagai nik
         nip: nip,
         employmentStatus: employmentStatus,
         appointmentYear: appointmentYear,
         placementArea: placementArea,
         grade: grade,
+        isAdmin: true,  // Tambahkan flag admin supaya jelas
       );
 
-      // Save admin data to Firestore
       await _firestore
           .collection('users')
           .doc(userCredential.user!.uid)
           .set(admin.toMap());
 
-      // Fetch user data to update local state
       await _fetchUserData();
       _setLoading(false);
       return true;
@@ -207,6 +212,7 @@ class AuthProvider extends ChangeNotifier {
         email: email,
         password: password,
       );
+      // Setelah login, authStateChanges listener akan otomatis update data user
       _setLoading(false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -224,6 +230,8 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       await _auth.signOut();
+      _userModel = null;
+      _adminModel = null;
     } catch (e) {
       _setError(e.toString());
     }
@@ -250,7 +258,6 @@ class AuthProvider extends ChangeNotifier {
       if (phoneNumber != null) updateData['phoneNumber'] = phoneNumber;
       if (gender != null) updateData['gender'] = gender;
       
-      // Upload new profile image if provided
       if (profileImage != null) {
         final profileImageUrl = await _uploadFile(
           profileImage,
@@ -259,7 +266,6 @@ class AuthProvider extends ChangeNotifier {
         updateData['profileImageUrl'] = profileImageUrl;
       }
       
-      // Upload new cover image if provided
       if (coverImage != null) {
         final coverImageUrl = await _uploadFile(
           coverImage,
@@ -268,21 +274,17 @@ class AuthProvider extends ChangeNotifier {
         updateData['coverImageUrl'] = coverImageUrl;
       }
 
-      // Update additional info if provided
       if (additionalInfo != null) {
-        // Merge existing additionalInfo with new values
         final currentAdditionalInfo = _userModel?.additionalInfo ?? {};
         currentAdditionalInfo.addAll(additionalInfo);
         updateData['additionalInfo'] = currentAdditionalInfo;
       }
 
-      // Update Firestore
       await _firestore
           .collection('users')
           .doc(_firebaseUser!.uid)
           .update(updateData);
 
-      // Refresh user data
       await _fetchUserData();
       _setLoading(false);
       return true;
@@ -334,6 +336,6 @@ class AuthProvider extends ChangeNotifier {
 
   void _clearError() {
     _errorMessage = null;
-    notifyListeners();
+    // Jangan panggil notifyListeners di sini untuk menghindari rebuild berlebih
   }
 }
