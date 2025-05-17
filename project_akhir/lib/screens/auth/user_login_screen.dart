@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:project_akhir/providers/auth_provider.dart';
 import 'package:project_akhir/screens/auth/user_register_screen.dart';
 import 'package:project_akhir/screens/user/user_main_screen.dart';
+import 'package:project_akhir/screens/auth/user_forgot_password_screen.dart';
+
 
 class UserLoginScreen extends StatefulWidget {
   const UserLoginScreen({super.key});
@@ -154,15 +156,19 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                               },
                             ),
                             const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {
-                                  // TODO: Implement forgot password
-                                },
-                                child: const Text('Forgot Your Password?'),
-                              ),
-                            ),
+Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+      );
+    },
+    child: const Text('Forgot Your Password?'),
+  ),
+),
+
                             const SizedBox(height: 20),
                             SizedBox(
                               width: double.infinity,
