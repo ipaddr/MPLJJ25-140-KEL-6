@@ -20,7 +20,9 @@ class MessageModel {
       id: id,
       text: map['text'] ?? '',
       senderId: map['senderId'] ?? '',
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
+      timestamp: map['timestamp'] is int
+          ? DateTime.fromMillisecondsSinceEpoch(map['timestamp'])
+          : (map['timestamp'] as Timestamp).toDate(),
       isUserMessage: map['isUserMessage'] ?? true,
     );
   }
