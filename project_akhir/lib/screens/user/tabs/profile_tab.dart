@@ -45,6 +45,16 @@ class _ProfileTabState extends State<ProfileTab> {
         profileImage: isProfileImage ? image : null,
         coverImage: !isProfileImage ? image : null,
       );
+      if (isProfileImage) {
+  setState(() {
+    _profileImage = null;
+  });
+} else {
+  setState(() {
+    _coverImage = null;
+  });
+}
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -95,10 +105,21 @@ class _ProfileTabState extends State<ProfileTab> {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.userModel;
     
-    if (user == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    
+   if (user == null) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const CircularProgressIndicator(),
+        const SizedBox(height: 16),
+        Text(
+          "Data pengguna tidak ditemukan.",
+          style: TextStyle(color: Colors.red),
+        ),
+      ],
+    ),
+  );
+}
     return Scaffold(
       body: _isUpdating
           ? const Center(child: CircularProgressIndicator())
