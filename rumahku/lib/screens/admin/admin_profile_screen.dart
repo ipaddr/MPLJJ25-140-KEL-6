@@ -6,7 +6,6 @@ import 'package:rumahku/providers/auth_provider.dart';
 import 'package:rumahku/screens/auth/admin_login_screen.dart';
 import 'package:rumahku/utils/app_theme.dart';
 import 'package:rumahku/utils/constants.dart';
-import 'package:rumahku/widgets/admin_profile_item.dart';
 import 'package:rumahku/widgets/custom_button.dart';
 import 'package:rumahku/widgets/loading_indicator.dart';
 
@@ -21,7 +20,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   Uint8List? _profileImage;
   Uint8List? _coverImage;
   bool _isEditing = false;
-  
+
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -47,7 +46,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     _rankController.dispose();
     super.dispose();
   }
-  
+
   void _initializeAdminData() {
     final admin = Provider.of<AuthProvider>(context, listen: false).admin;
     if (admin != null) {
@@ -120,13 +119,43 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   Future<void> _logout() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.logout();
-    
+
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const AdminLoginScreen()),
-        (route) => false,
+            (route) => false,
       );
     }
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 150,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.red[900],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Text(' : '),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -143,367 +172,386 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          if (!_isEditing)
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.white),
+              onPressed: () {
+                setState(() {
+                  _isEditing = true;
+                });
+              },
+            ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: authProvider.isLoading
           ? const Center(child: LoadingIndicator())
-          : CustomScrollView(
-              slivers: [
-                // App Bar with Cover Image
-                SliverAppBar(
-                  expandedHeight: 200.0,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Cover Image
-                        _coverImage != null
-                            ? Image.memory(_coverImage!, fit: BoxFit.cover)
-                            : admin.coverImageUrl != null
-                                ? Image.network(admin.coverImageUrl!, fit: BoxFit.cover)
-                                : Image.network(
-                                    'https://images.pexels.com/photos/305821/pexels-photo-305821.jpeg',
-                                    fit: BoxFit.cover,
-                                  ),
-                        
-                        // Gradient Overlay
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.7),
-                              ],
-                            ),
+          : Stack(
+        children: [
+          // Main content
+          SingleChildScrollView(
+            // Make entire content scrollable
+            child: Column(
+              children: [
+                // Cover image with profile picture
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    // Cover Image
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: _coverImage != null
+                              ? MemoryImage(_coverImage!)
+                              : admin.coverImageUrl != null
+                              ? NetworkImage(admin.coverImageUrl!)
+                              : const NetworkImage(
+                            'https://images.pexels.com/photos/305821/pexels-photo-305821.jpeg',
+                          ),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(0.5),
+                            BlendMode.darken,
                           ),
                         ),
-                        
-                        // Edit Cover Button
-                        if (_isEditing)
-                          Positioned(
-                            top: 60,
-                            right: 16,
+                      ),
+                      child: _isEditing
+                          ? Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          ),
+                          onPressed: _pickCoverImage,
+                        ),
+                      )
+                          : null,
+                    ),
+
+                    // Profile picture
+                    Positioned(
+                      bottom: -50,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.white,
                             child: CircleAvatar(
-                              backgroundColor: Colors.white.withOpacity(0.7),
-                              child: IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: _pickCoverImage,
-                              ),
+                              radius: 47,
+                              backgroundImage: _profileImage != null
+                                  ? MemoryImage(_profileImage!)
+                                  : admin.profileImageUrl != null
+                                  ? NetworkImage(admin.profileImageUrl!)
+                                  : const NetworkImage(AppConstants.placeholderProfileImage),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    if (!_isEditing)
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          setState(() {
-                            _isEditing = true;
-                          });
-                        },
+                          if (_isEditing)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppTheme.primaryColor,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
+                                    onPressed: _pickProfileImage,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                    IconButton(
-                      icon: const Icon(Icons.logout),
-                      onPressed: _logout,
                     ),
                   ],
                 ),
-                
-                // Profile Information
-                SliverToBoxAdapter(
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      // Profile Card
-                      Container(
-                        margin: const EdgeInsets.only(top: 40),
-                        padding: const EdgeInsets.only(top: 40, bottom: 16, left: 16, right: 16),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Admin Name
-                            Text(
-                              admin.fullName,
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 4),
-                            
-                            // Gender & Age
-                            Text(
-                              '${admin.gender ?? 'Tidak disetel'} · ${admin.appointmentYear.isNotEmpty ? '${DateTime.now().year - int.parse(admin.appointmentYear)} Tahun' : 'N/A'}',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            
-                            // Profile Edit Form
-                            if (_isEditing)
-                              Form(
-                                key: _formKey,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Full Name
-                                    TextFormField(
-                                      controller: _fullNameController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Nama Lengkap',
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your full name';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    
-                                    // Phone Number
-                                    TextFormField(
-                                      controller: _phoneController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Nomor Telepon',
-                                      ),
-                                      keyboardType: TextInputType.phone,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your phone number';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    
-                                    // Gender Selection
-                                    Text(
-                                      'Jenis Kelamin',
-                                      style: Theme.of(context).textTheme.titleSmall,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Radio<String>(
-                                          value: 'Laki-laki',
-                                          groupValue: _selectedGender,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _selectedGender = value!;
-                                            });
-                                          },
-                                        ),
-                                        const Text('Laki-laki'),
-                                        const SizedBox(width: 16),
-                                        Radio<String>(
-                                          value: 'Perempuan',
-                                          groupValue: _selectedGender,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _selectedGender = value!;
-                                            });
-                                          },
-                                        ),
-                                        const Text('Perempuan'),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    
-                                    // Employment Status
-                                    TextFormField(
-                                      controller: _employmentStatusController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Status Kepegawaian',
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your employment status';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    
-                                    // Appointment Year
-                                    TextFormField(
-                                      controller: _appointmentYearController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Tahun Diangkat',
-                                      ),
-                                      keyboardType: TextInputType.number,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your appointment year';
-                                        }
-                                        final year = int.tryParse(value);
-                                        if (year == null || year < 1900 || year > DateTime.now().year) {
-                                          return 'Please enter a valid year';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    
-                                    // Placement Area
-                                    TextFormField(
-                                      controller: _placementAreaController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Wilayah Penempatan',
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your placement area';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    
-                                    // Rank
-                                    TextFormField(
-                                      controller: _rankController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Golongan',
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your rank';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    const SizedBox(height: 32),
-                                    
-                                    // Save and Cancel Buttons
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: OutlinedButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _isEditing = false;
-                                                _profileImage = null;
-                                                _coverImage = null;
-                                                _initializeAdminData();
-                                              });
-                                            },
-                                            style: OutlinedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(vertical: 16),
-                                            ),
-                                            child: const Text('Batal'),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: _saveProfile,
-                                            style: ElevatedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(vertical: 16),
-                                            ),
-                                            child: const Text('Simpan'),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              )
-                            else
-                              // Admin Information
-                              Column(
-                                children: [
-                                  AdminProfileItem(
-                                    label: 'NIP',
-                                    value: admin.nip,
-                                    icon: Icons.badge,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  AdminProfileItem(
-                                    label: 'Status Kepegawaian',
-                                    value: admin.employmentStatus,
-                                    icon: Icons.work,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  AdminProfileItem(
-                                    label: 'Tahun Diangkat',
-                                    value: admin.appointmentYear,
-                                    icon: Icons.calendar_today,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  AdminProfileItem(
-                                    label: 'Wilayah Penempatan',
-                                    value: admin.placementArea,
-                                    icon: Icons.location_on,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  AdminProfileItem(
-                                    label: 'Golongan',
-                                    value: admin.rank,
-                                    icon: Icons.military_tech,
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Profile Image
-                      Positioned(
-                        top: -40,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 40,
-                                backgroundColor: Colors.white,
-                                child: CircleAvatar(
-                                  radius: 38,
-                                  backgroundImage: _profileImage != null
-                                      ? MemoryImage(_profileImage!)
-                                      : admin.profileImageUrl != null
-                                          ? NetworkImage(admin.profileImageUrl!)
-                                          : const NetworkImage(AppConstants.placeholderProfileImage),
-                                ),
-                              ),
-                              if (_isEditing)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: CircleAvatar(
-                                    radius: 18,
-                                    backgroundColor: Colors.white,
-                                    child: CircleAvatar(
-                                      radius: 16,
-                                      backgroundColor: AppTheme.primaryColor,
-                                      child: IconButton(
-                                        icon: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
-                                        onPressed: _pickProfileImage,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+
+                // Space for profile picture overflow
+                const SizedBox(height: 60),
+
+                // Admin name and information
+                Text(
+                  admin.fullName,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${admin.gender ?? 'Laki-laki'} - ${DateTime.now().year - int.parse(admin.appointmentYear)} Tahun',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Admin details or edit form
+                _isEditing
+                    ? _buildEditForm()
+                    : _buildProfileInfo(admin),
+
+                // Add padding at the bottom for the bottom navigation bar
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileInfo(admin) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        children: [
+          _buildInfoCard(Icons.badge, 'NIP', admin.nip),
+          _buildInfoCard(Icons.work, 'Status Kepegawaian', admin.employmentStatus),
+          _buildInfoCard(Icons.date_range, 'Tahun Diangkat', admin.appointmentYear),
+          _buildInfoCard(Icons.location_on, 'Wilayah Penempatan', admin.placementArea),
+          _buildInfoCard(Icons.military_tech, 'Golongan', admin.rank),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(IconData icon, String label, String value) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: Colors.red.shade800),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      )),
+                  const SizedBox(height: 4),
+                  Text(value,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      )),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditForm() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Full Name
+            TextFormField(
+              controller: _fullNameController,
+              decoration: const InputDecoration(
+                labelText: 'Nama Lengkap',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your full name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Phone Number
+            TextFormField(
+              controller: _phoneController,
+              decoration: const InputDecoration(
+                labelText: 'Nomor Telepon',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your phone number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Gender Selection
+            Text(
+              'Jenis Kelamin',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            Row(
+              children: [
+                Radio<String>(
+                  value: 'Laki-laki',
+                  groupValue: _selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value!;
+                    });
+                  },
+                ),
+                const Text('Laki-laki'),
+                const SizedBox(width: 16),
+                Radio<String>(
+                  value: 'Perempuan',
+                  groupValue: _selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value!;
+                    });
+                  },
+                ),
+                const Text('Perempuan'),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Employment Status
+            TextFormField(
+              controller: _employmentStatusController,
+              decoration: const InputDecoration(
+                labelText: 'Status Kepegawaian',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your employment status';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Appointment Year
+            TextFormField(
+              controller: _appointmentYearController,
+              decoration: const InputDecoration(
+                labelText: 'Tahun Diangkat',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your appointment year';
+                }
+                final year = int.tryParse(value);
+                if (year == null || year < 1900 || year > DateTime.now().year) {
+                  return 'Please enter a valid year';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Placement Area
+            TextFormField(
+              controller: _placementAreaController,
+              decoration: const InputDecoration(
+                labelText: 'Wilayah Penempatan',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your placement area';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Rank
+            TextFormField(
+              controller: _rankController,
+              decoration: const InputDecoration(
+                labelText: 'Golongan',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your rank';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 32),
+
+            // Save and Cancel Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isEditing = false;
+                        _profileImage = null;
+                        _coverImage = null;
+                        _initializeAdminData();
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Batal'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.red[900],
+                    ),
+                    child: const Text('Simpan', style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
             ),
+          ],
+        ),
+      ),
     );
   }
 }

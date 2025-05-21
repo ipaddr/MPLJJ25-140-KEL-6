@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="62c003fb-cb14-40fd-8b34-b11b54efc620" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project_akhir/assets/.env" beforeDir="false" afterPath="$PROJECT_DIR$/project_akhir/assets/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project_akhir/lib/services/chat_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/project_akhir/lib/services/chat_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project_akhir/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/project_akhir/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rumahku/lib/screens/admin/admin_profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/rumahku/lib/screens/admin/admin_profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rumahku/lib/screens/user/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/rumahku/lib/screens/user/profile_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +39,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/TUGAS SMT 6/MOBILE PROG/MPLJJ25-140-KEL-6",
+    "last_opened_file_path": "D:/punya caca/informatics/Semester 6/Mobile Programming Lanjutan/github/MPLJJ25-140-KEL-6",
     "settings.editor.selected.configurable": "flutter.settings",
     "show.migrate.to.gradle.popup": "false"
   }
