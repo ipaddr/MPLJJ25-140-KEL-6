@@ -447,7 +447,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const Icon(Icons.home, color: Color(0xFF003837)),
+                      const Icon(Icons.home, color: Color(0xFF54a088)),
                       const SizedBox(height: 8),
                       const Text(
                         'Status Kepemilikan',
@@ -476,7 +476,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const Icon(Icons.water_drop,color: Color(0xFF003837)),
+                      const Icon(Icons.water_drop,color: Color(0xFF54a088)),
                       const SizedBox(height: 8),
                       const Text(
                         'Status Air',
@@ -513,7 +513,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const Icon(Icons.thermostat, color: Color(0xFF003837)),
+                      const Icon(Icons.thermostat, color: Color(0xFF54a088)),
 
                       const SizedBox(height: 8),
                       const Text(
@@ -543,7 +543,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const Icon(Icons.nature_people, color: Color(0xFF003837)),
+                      const Icon(Icons.nature_people, color: Color(0xFF54a088)),
                       const SizedBox(height: 8),
                       const Text(
                         'Status Lingkungan',
