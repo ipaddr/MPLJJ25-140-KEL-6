@@ -345,10 +345,10 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.green.shade100,
+                color: Colors.teal.shade50,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: Colors.greenAccent.shade400),
+              child: Icon(icon, color: Colors.teal.shade600),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -542,7 +542,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                     onPressed: _saveProfile,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.greenAccent.shade400,
+                      backgroundColor: Colors.teal.shade600,
                     ),
                     child: const Text('Simpan', style: TextStyle(color: Colors.white)),
                   ),
