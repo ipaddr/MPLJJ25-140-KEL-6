@@ -47,7 +47,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Login failed. Please check your credentials.'),
-          backgroundColor: AppTheme.errorColor,
+          backgroundColor: Color.fromARGB(255, 0, 176, 176),
         ),
       );
     }
@@ -66,7 +66,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             image: NetworkImage('https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              Color.fromRGBO(128, 0, 0, 0.7),
+              Color.fromRGBO(5, 154, 136, 0.702),
               BlendMode.srcOver,
             ),
           ),
