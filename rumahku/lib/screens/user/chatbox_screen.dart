@@ -71,7 +71,7 @@ class ChatboxScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const ChatAIScreen(),
+                        builder: (context) => const ChatbotScreen(),
                       ),
                     );
                   },
