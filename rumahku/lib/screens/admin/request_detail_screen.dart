@@ -20,6 +20,9 @@ class RequestDetailScreen extends StatefulWidget {
 }
 
 class _RequestDetailScreenState extends State<RequestDetailScreen> {
+  final TextEditingController _commentController = TextEditingController(); // Controller untuk komentar
+  List<String> _comments = []; // List untuk menyimpan komentar
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +32,15 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
   Future<void> _loadRequestDetails() async {
     final requestProvider = Provider.of<RequestProvider>(context, listen: false);
     await requestProvider.getRequestById(widget.requestId);
+  }
+
+  void _addComment() {
+    if (_commentController.text.isNotEmpty) {
+      setState(() {
+        _comments.add(_commentController.text); // Menambahkan komentar ke list
+        _commentController.clear(); // Mengosongkan field komentar setelah ditambahkan
+      });
+    }
   }
 
   @override
@@ -343,6 +355,41 @@ class _RequestDetailScreenState extends State<RequestDetailScreen> {
                               ),
                             ),
                           ],
+                        ),
+
+                      const SizedBox(height: 32),
+
+                      // Comment Section
+                      Text(
+                        'Komentar Admin',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _commentController,
+                        decoration: InputDecoration(
+                          labelText: 'Masukkan komentar',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _addComment,
+                        child: const Text('Kirim Komentar'),
+                      ),
+                      const SizedBox(height: 16),
+                      // Display Comments
+                      for (var comment in _comments)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(comment),
+                            ),
+                          ),
                         ),
                     ],
                   ),
